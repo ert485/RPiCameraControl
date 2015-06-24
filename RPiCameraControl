@@ -1,0 +1,92 @@
+import sys
+import os
+from PySide import QtGui, QtCore
+
+
+
+class CamSettings:
+    shutterTime=1000
+    
+    def __init__(self,shutterTime):
+        self.shutterTime=shutterTime
+
+    
+class Example(QtGui.QWidget):
+    
+    def __init__(self):
+        super(Example, self).__init__()
+        
+        self.initUI()
+        
+    def initUI(self):
+        
+        self.ST = QtGui.QLabel(self)
+        self.ST.move(40, 0)
+        self.ST.setText(unicode(CamSettings.shutterTime))
+        self.ST.adjustSize()  
+
+        btnSTu = QtGui.QPushButton("+", self)
+        btnSTu.resize(20,20)
+        btnSTu.move(0,0)
+        btnSTu.clicked.connect(self.ShutterLonger)
+        btnSTu.setToolTip('Shutter Time (ns)')
+        
+        btnSTd = QtGui.QPushButton("-", self)
+        btnSTd.resize(20,20)
+        btnSTd.move(20,0)
+        btnSTd.clicked.connect(self.ShutterShorter)
+        btnSTd.setToolTip('Shutter Time (ns)')
+
+        btnStart = QtGui.QPushButton('>', self)
+        btnStart.setToolTip('Start')
+        btnStart.resize(20,20)
+        btnStart.move(0, 130)       
+        btnStart.clicked.connect(self.StartCamera)
+
+        btnStop = QtGui.QPushButton('X', self)
+        btnStop.setToolTip('Stop')
+        btnStop.resize(20,20)
+        btnStop.move(20, 130)       
+        btnStop.clicked.connect(self.StopCamera)
+        
+        
+        self.setGeometry(0, 0, 250, 150)
+        self.setWindowTitle('PiCameraControl')    
+        self.show()
+        
+    def ShutterLonger(self):
+        CamSettings.shutterTime=CamSettings.shutterTime+100
+          
+        self.ST.setText(unicode(CamSettings.shutterTime))
+        self.ST.adjustSize()
+        
+    def ShutterShorter(self):
+        CamSettings.shutterTime=CamSettings.shutterTime-100
+        if (CamSettings.shutterTime<0):
+            CamSettings.shutterTime=0
+            
+        self.ST.setText(unicode(CamSettings.shutterTime))
+        self.ST.adjustSize()
+        
+    def StartCamera(self):
+        f = os.popen('raspistill -h')
+        now = f.read()
+        print now
+    def StopCamera(self):
+        f = os.popen('pkill raspistill')
+        now = f.read()
+        print now
+
+
+
+        
+def main():
+    st= CamSettings(1000)
+    app = QtGui.QApplication(sys.argv)
+
+    ex = Example()
+    sys.exit(app.exec_())
+
+
+if __name__ == '__main__':
+    main()
